@@ -35,6 +35,33 @@ func (s *ReplySuite) TestBytes(c *C) {
 	c.Check(b, DeepEquals, []byte("foo"))
 }
 
+func (s *ReplySuite) TestFloat64(c *C) {
+	r := &Reply{Type: ErrorReply, Err: ParseError}
+	_, err := r.Float64()
+	c.Check(err, Equals, ParseError)
+
+	r = &Reply{Type: IntegerReply, int: 5}
+	b, err := r.Float64()
+	c.Check(err, IsNil)
+	c.Check(b, Equals, float64(5))
+
+	r = &Reply{Type: BulkReply, buf: []byte("5.1")}
+	b, err = r.Float64()
+	c.Check(err, IsNil)
+	c.Check(b, Equals, float64(5.1))
+
+	r = &Reply{Type: BulkReply, buf: []byte("foo")}
+	_, err = r.Float64()
+	c.Check(err, NotNil)
+}
+
+func (s *ReplySuite) TestFloat(c *C) {
+	r := &Reply{Type: IntegerReply, int: 5}
+	b, err := r.Float()
+	c.Check(err, IsNil)
+	c.Check(b, Equals, float32(5))
+}
+
 func (s *ReplySuite) TestInt64(c *C) {
 	r := &Reply{Type: ErrorReply, Err: ParseError}
 	_, err := r.Int64()
